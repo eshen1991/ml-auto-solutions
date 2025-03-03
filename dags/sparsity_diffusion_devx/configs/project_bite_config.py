@@ -48,7 +48,7 @@ def set_up_axlearn_head() -> Tuple[str]:
   return (
       common.UPGRADE_PIP,
       "git clone https://github.com/apple/axlearn.git",
-      "python -m pip install ./axlearn[core, dev, gcp]",
+      "python -m pip install './axlearn[core, dev, gcp]'",
       *common.set_up_nightly_jax(),
   )
 
@@ -116,13 +116,24 @@ def get_bite_unit_test_config(
   )
 
   set_up_cmds = set_up_axlearn_head()
-  run_model_cmds = (
-      (
-          "cd axlearn && ./run_tests.sh"
-      ),
-  )
+  # run_model_cmds = (
+  #     (
+  #         "cd axlearn && ./run_tests.sh"
+  #     ),
+  # )
+  run_model_cmds = [
+    "pip install pytest",
+    "pip show pytest",
+    "echo $PATH",
+    "export PATH=/home/ml-auto-solutions/.local/bin:$PATH",
+    "echo $PATH",
+    "pytest --version",
+    "cd axlearn",
+    '''sed -i 's/"not (\([^)]*\))"/"tpu"/g' ./run_tests.sh''',
+    "./run_tests.sh"
+  ]
 
-  test_name = f"bite_unit_test_tpu_v{tpu_version.value}_{tpu_cores}"
+  test_name = f"eshen_bite_unit_test_tpu_v{tpu_version.value}_{tpu_cores}"
   job_test_config = test_config.TpuVmTest(
       test_config.Tpu(
           version=tpu_version,
